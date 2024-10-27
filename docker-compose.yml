@@ -1,0 +1,39 @@
+version: '3'
+services:
+  servico-pagamento:
+    build: ./servico-pagamento
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_DB=pagamentos
+      - RABBITMQ_URL=amqp://rabbitmq
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  servico-notificacao:
+    build: ./servico-notificacao
+    ports:
+      - "3001:3001"
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq
+    depends_on:
+      - rabbitmq
+
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: pagamentos
+    ports:
+      - "5432:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
